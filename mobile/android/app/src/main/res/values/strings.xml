@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">شمیران گلد</string>
+    <string name="title_activity_main">شمیران گلد</string>
+    <string name="package_name">ir.shemirangold.app</string>
+    <string name="custom_url_scheme">ir.shemirangold.app</string>
+</resources>

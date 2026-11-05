@@ -1,0 +1,102 @@
+<!doctype html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#0b0906">
+<title>شمیران گلد — اینترنت قطع است</title>
+<style>
+  :root { --bad: #f85050; --gold: #d4af5a; }
+  * { box-sizing: border-box; margin: 0; }
+  html, body { height: 100%; background: #0b0906; color: #f3ead6; font-family: "Vazirmatn", Tahoma, "Segoe UI", system-ui, sans-serif; overflow: hidden; -webkit-user-select: none; user-select: none; }
+  canvas { position: fixed; inset: 0; width: 100%; height: 100%; }
+  main { position: relative; z-index: 1; height: 100%; display: grid; place-items: center; padding: 24px; text-align: center; }
+  .box { max-width: 380px; display: grid; gap: 14px; justify-items: center; }
+  .logo { width: 84px; height: 84px; border-radius: 22px; box-shadow: 0 0 0 1px rgba(248,80,80,.5), 0 18px 50px -12px rgba(248,80,80,.55); animation: pulse 2.4s ease-in-out infinite; }
+  h1 { font-size: 22px; font-weight: 700; color: #ffd9d9; }
+  p { font-size: 14px; line-height: 2; color: #b9aa8a; }
+  .st { display: inline-flex; align-items: center; gap: 8px; font-size: 13px; color: var(--bad); }
+  .st i { width: 9px; height: 9px; border-radius: 50%; background: var(--bad); box-shadow: 0 0 10px var(--bad); animation: blink 1.2s infinite; }
+  button { margin-top: 4px; font: inherit; font-size: 14px; font-weight: 700; color: #1a1408; background: var(--gold); border: 0; border-radius: 12px; padding: 11px 26px; cursor: pointer; }
+  button:disabled { opacity: .6; cursor: default; }
+  @keyframes blink { 50% { opacity: .25; } }
+  @keyframes pulse { 50% { transform: scale(1.04); } }
+  @media (prefers-reduced-motion: reduce) { .logo, .st i { animation: none; } }
+</style>
+</head>
+<body>
+<canvas id="c" aria-hidden="true"></canvas>
+<main>
+  <div class="box" role="alert">
+    <img class="logo" src="logo.png" alt="شمیران گلد">
+    <h1>اینترنت شما قطع است</h1>
+    <p>شمیران گلد برای نمایش قیمت‌ها و ثبت معامله به اینترنت نیاز دارد. به‌محض وصل شدن، خودکار برمی‌گردید.</p>
+    <span class="st"><i></i><span id="msg">در حال تلاش برای اتصال…</span></span>
+    <button id="retry" type="button">تلاش دوباره</button>
+  </div>
+</main>
+<script>
+(function () {
+  // آدرس داشبورد؛ اسکریپت‌های ساخت (scripts/sync-shared.mjs) آن را از config.json می‌نویسند
+  var SITE = "https://shemirangold.ir";
+  var START = SITE + "/dashboard";
+  var msg = document.getElementById("msg"), btn = document.getElementById("retry"), busy = false;
+
+  // آیا به سایت می‌رسیم؟ (no-cors: پاسخ مبهم هم یعنی رسیده‌ایم؛ فقط خطای شبکه یعنی قطع است)
+  function probe() {
+    if (busy) return; busy = true; btn.disabled = true; msg.textContent = "در حال بررسی اتصال…";
+    var ctl = new AbortController(), to = setTimeout(function () { ctl.abort(); }, 7000);
+    fetch(SITE + "/favicon.ico?_=" + Date.now(), { mode: "no-cors", cache: "no-store", signal: ctl.signal })
+      .then(function () { msg.textContent = "وصل شد…"; location.replace(START); })
+      .catch(function () { msg.textContent = "هنوز قطع است؛ دوباره تلاش می‌کنیم…"; })
+      .finally(function () { clearTimeout(to); busy = false; btn.disabled = false; });
+  }
+  btn.addEventListener("click", probe);
+  window.addEventListener("online", probe);
+  setInterval(probe, 4000);
+  probe();
+
+  // انیمیشن: همان جریان ذره‌های AITC روی منحنی‌های بزیه، ولی قرمز و سریع‌تر (قطعی اینترنت)
+  var cv = document.getElementById("c"), ctx = cv.getContext("2d"), W = 0, H = 0, S = [], D = [], t = 0;
+  var low = matchMedia("(prefers-reduced-motion: reduce)").matches || innerWidth < 768;
+  function size() { W = cv.width = innerWidth; H = cv.height = innerHeight; make(); }
+  function br() {
+    var g = { x: W * .58, y: H * .26 }, e = { x: W * .97, y: H * .02 };
+    return [
+      [{ x: 0, y: H * .13 }, { x: W * .2, y: H * .12 }, g, e], [{ x: 0, y: H * .48 }, { x: W * .15, y: H * .34 }, g, e],
+      [{ x: W * .12, y: H }, { x: W * .14, y: H * .68 }, g, e], [{ x: W * .38, y: H }, { x: W * .36, y: H * .62 }, g, e],
+      [{ x: W * .64, y: H }, { x: W * .56, y: H * .58 }, g, e]
+    ];
+  }
+  function bez(u, p) { var m = 1 - u; return { x: m*m*m*p[0].x + 3*m*m*u*p[1].x + 3*m*u*u*p[2].x + u*u*u*p[3].x, y: m*m*m*p[0].y + 3*m*m*u*p[1].y + 3*m*u*u*p[2].y + u*u*u*p[3].y }; }
+  function tan(u, p) { var m = 1 - u; return { x: 3*m*m*(p[1].x-p[0].x) + 6*m*u*(p[2].x-p[1].x) + 3*u*u*(p[3].x-p[2].x), y: 3*m*m*(p[1].y-p[0].y) + 6*m*u*(p[2].y-p[1].y) + 3*u*u*(p[3].y-p[2].y) }; }
+  function make() {
+    S = []; D = [];
+    var per = low ? 12 : 30, dust = low ? 30 : 90;
+    for (var b = 0; b < 5; b++) for (var i = 0; i < per; i++) S.push({ b: b, u: Math.random(), v: Math.random() * .00066 + .0003, perp: (Math.random() - .5) * .12, ph: Math.random() * 6.28, fq: Math.random() * 1.4 + 1, r: Math.random() * 1.6 + .5, o: Math.random() * .5 + .3 });
+    for (i = 0; i < dust; i++) D.push({ x: Math.random() * W, y: Math.random() * H, r: Math.random() * 1.2 + .3, sx: (Math.random() - .5) * .35, sy: (Math.random() - .5) * .25, o: Math.random() * .3 + .1, ts: Math.random() * .02 + .005, to: Math.random() * 6.28 });
+  }
+  function dot(x, y, r, o) { ctx.globalAlpha = o; ctx.beginPath(); ctx.arc(x, y, r, 0, 6.2832); ctx.fill(); }
+  function frame() {
+    requestAnimationFrame(frame);
+    if (document.hidden) return;
+    t += .5; ctx.clearRect(0, 0, W, H); ctx.fillStyle = "rgb(248,80,80)";
+    var bs = br(), wind = Math.sin(t * .004) * 5;
+    for (var k = 0; k < S.length; k++) {
+      var p = S[k]; p.u += p.v; if (p.u > 1) p.u = 0;
+      var pa = bs[p.b], c = bez(p.u, pa), n = tan(p.u, pa), l = Math.hypot(n.x, n.y) || 1;
+      var off = p.perp * 850 + Math.sin(p.u * Math.PI * p.fq + p.ph) * 25;
+      dot(c.x + (-n.y / l) * off + wind, c.y + (n.x / l) * off, p.r, p.o * (p.u > .985 ? (1 - p.u) / .015 : 1));
+    }
+    for (k = 0; k < D.length; k++) {
+      var d = D[k]; d.x += d.sx; d.y += d.sy;
+      if (d.x < 0) d.x = W; if (d.x > W) d.x = 0; if (d.y < 0) d.y = H; if (d.y > H) d.y = 0;
+      dot(d.x, d.y, d.r, d.o * ((Math.sin(t * d.ts + d.to) + 1) / 2));
+    }
+    ctx.globalAlpha = 1;
+  }
+  addEventListener("resize", size); size(); frame();
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,16 @@
+node_modules/
+.toolchain/
+dist/
+secrets/
+mobile/android/app/build/
+mobile/android/build/
+mobile/android/.gradle/
+mobile/android/local.properties
+mobile/android/app/src/main/assets/public/
+mobile/android/app/src/main/assets/capacitor.config.json
+mobile/ios/App/Pods/
+mobile/ios/App/App/public/
+mobile/ios/App/App/capacitor.config.json
+*.keystore
+*.jks
+keystore.properties

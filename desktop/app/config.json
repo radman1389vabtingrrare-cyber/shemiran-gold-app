@@ -1,0 +1,9 @@
+{
+  "name": "شمیران گلد",
+  "productName": "Shemiran Gold",
+  "appId": "ir.shemirangold.app",
+  "version": "1.0.0",
+  "versionCode": 1,
+  "siteUrl": "https://shemirangold.ir",
+  "startPath": "/dashboard"
+}

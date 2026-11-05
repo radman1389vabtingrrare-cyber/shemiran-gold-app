@@ -1,0 +1,21 @@
+{
+  "name": "shemiran-gold-mobile",
+  "version": "1.0.0",
+  "private": true,
+  "description": "پوسته‌ی اندروید و iOS شمیران گلد (Capacitor): داشبورد سایت داخل یک برنامه‌ی نصبی",
+  "scripts": {
+    "sync": "node ../scripts/sync-shared.mjs && cap sync",
+    "android:debug": "npm run sync && cd android && ./gradlew assembleDebug",
+    "android:release": "npm run sync && cd android && ./gradlew assembleRelease"
+  },
+  "dependencies": {
+    "@capacitor/android": "^7.4.0",
+    "@capacitor/core": "^7.4.0",
+    "@capacitor/ios": "^7.4.0"
+  },
+  "devDependencies": {
+    "@capacitor/assets": "^3.0.5",
+    "@capacitor/cli": "^7.4.0",
+    "typescript": "^5.6.0"
+  }
+}
